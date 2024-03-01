@@ -696,7 +696,7 @@ PlayerSettings:
   webGLMemoryGeometricGrowthCap: 96
   webGLPowerPreference: 2
   scriptingDefineSymbols:
-    Android: UNITY_EDITOR;UNITY_ANDROID
+    Android: 
   additionalCompilerArguments: {}
   platformArchitecture: {}
   scriptingBackend: {}
