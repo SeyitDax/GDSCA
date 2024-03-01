@@ -42,7 +42,7 @@ public class RegisterManager : MonoBehaviour
                 }
                 else
                 {
-                    Notification.instance.InstantiateNotification("Uygunsuz kelime kullanýmý");
+                    Notification.instance.InstantiateNotification("Uygunsuz kelime kullanýmý",true);
                     // Debug.Log("Unappropiate UserName");
                 }
 
@@ -50,7 +50,7 @@ public class RegisterManager : MonoBehaviour
             else
             {
                // Debug.Log("Phone Number does not exist");
-                Notification.instance.InstantiateNotification("Phone Number does not exist",true);
+                Notification.instance.InstantiateNotification("Bu telefon numarasýna sahib bir üye bulunamadý",true);
             }
         }
         else

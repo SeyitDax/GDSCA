@@ -71,8 +71,11 @@ public class AppData : MonoBehaviour
 
     private void Start()
     {
-        AddPerson("Seyit Ahmet", "5511264537", true, true);
-        AddPerson("", "5511264537");
+        // AddPerson("Seyit Ahmet", "5511264537", true, true);
+
+        string[] personToAdd = new string[] { "5523288342", "5469464663", "544 571 97 62", "505 053 67 10", "543 176 09 20", "546 530 07 40", "506 503 87 60", "539 773 24 63", "554 196 50 87", "551 983 92 35", "" };
+
+        AddPerson("", "551 126 45 37");
         AddPerson("", "5511264522");
     }
 
@@ -105,7 +108,7 @@ public class AppData : MonoBehaviour
             
                 instance.phoneBook.Add(newPerson);
 
-                Notification.instance.InstantiateNotification("Kayýt Baþarýlý");
+                if (!firstAdd)Notification.instance.InstantiateNotification("Kayýt Baþarýlý",false);
                 Debug.Log("New Person is Added");
             }
         }

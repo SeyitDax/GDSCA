@@ -4,6 +4,7 @@ using TMPro;
 using Unity.VisualScripting;
 using UnityEditor.VersionControl;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class Notification : MonoBehaviour
@@ -19,20 +20,72 @@ public class Notification : MonoBehaviour
         TextMeshProUGUI messageText = notificationObject.transform.Find("MessageText").GetComponent<TextMeshProUGUI>();
         if (messageText != null)
         {
+            if(warning)
+            {
+                messageText.color = Color.white;
+            }
+            else
+            {
+                messageText.color = Color.black;
+            }
+
             messageText.text = message;
         }
 
         // Set warning visuals if necessary
-        if (warning)
-        {
-            Image warningImage = notificationObject.transform.Find("WarningImage").GetComponent<Image>();
-            if (warningImage != null)
-            {
-                warningImage.gameObject.SetActive(true);
-            }
-        }
 
-        StartCoroutine(MoveNotificationBox(notificationObject.transform,200f));
+        if (notificationObject != null)
+        {
+            Transform warningBox = notificationObject.transform.Find("WarningBox");
+
+            SetSizeBasedOnScene(notificationObject);
+
+            if (warningBox != null)
+            {
+                Image boxImage = warningBox.GetComponent<Image>();
+
+                RawImage warningImage = notificationObject.transform.Find("WarningImage").GetComponent<RawImage>();
+                RawImage confirmationImage = notificationObject.transform.Find("ConfirmationImage").GetComponent<RawImage>();
+
+                if (warningImage != null && confirmationImage != null)
+                {
+                    if (warning)
+                    {
+                        Debug.Log("This is a warning");
+
+                        boxImage.sprite = Resources.Load<Sprite>("AppAssets/Warning_Box");
+
+                        warningImage.enabled = true;
+                        confirmationImage.enabled = false;
+                    }
+                    else
+                    {
+                        Debug.Log("Confirmation is true");
+
+                        boxImage.sprite = Resources.Load<Sprite>("AppAssets/Confirmation_Box");
+
+                        warningImage.enabled = false;
+                        confirmationImage.enabled = true;
+                    }
+
+                    ShowNotification(notificationObject);
+                }
+                else
+                {
+                    Debug.LogWarning("Images insidde the NotificationObject is not found.");
+                }
+
+            }
+            else
+            {
+                Debug.LogWarning("NotificationBox is not found.");
+            }
+            
+        }
+        else
+        {
+            Debug.LogWarning("NotificationObject is not found.");
+        }
     }
 
     private void Awake()
@@ -49,72 +102,40 @@ public class Notification : MonoBehaviour
 
         DontDestroyOnLoad(gameObject);
     }
-    public void ShowNotification(string message, bool warning = false)
+    public void ShowNotification(GameObject notificationBox)
     {
-        GameObject notificationBox = GameObject.Find("NotificationBox");
-
         if (notificationBox != null)
         {
-            Transform warningBox = notificationBox.transform.Find("WarningBox");
-
-            if (warningBox != null)
-            {
-                TextMeshProUGUI notificationMessage = warningBox.GetComponentInChildren<TextMeshProUGUI>();
-
-                if (notificationBox != null)
-                {
-                    notificationMessage.text = message;
-
-                    Image boxImage = warningBox.GetComponent<Image>();
-
-                    RawImage warningImage = notificationBox.transform.Find("WarningImage").GetComponent<RawImage>();
-                    RawImage confirmationImage = notificationBox.transform.Find("ConfirmationImage").GetComponent<RawImage>();
-
-                    if (warning)
-                    {
-                        boxImage.sprite = Resources.Load<Sprite>("AppAssets/Warning_Box");
-
-                        warningImage.enabled = true;
-                        confirmationImage.enabled = false;
-                    }
-                    else
-                    {
-                        boxImage.sprite = Resources.Load<Sprite>("AppAssets/Confirmation_Box");
-
-                        warningImage.enabled = false;
-                        confirmationImage.enabled = true;
-                    }
-
-                    StartCoroutine(MoveNotificationBox(notificationBox.GetComponent<Transform>(), 200f));
-                }
-
-                else
-                {
-                    Debug.LogWarning("Notification text is not found");
-                }
-            }
-            else
-            {
-                Debug.LogWarning("WarningBox is not found!");
-            }
+            StartCoroutine(MoveNotificationBox(notificationBox.GetComponent<Transform>(), 200f));
         }
         else
         {
-            Debug.LogWarning("Notification Box Couldn't be found!");
+            Debug.LogWarning("NotificationBox is not found");
         }
     }
 
     IEnumerator MoveNotificationBox(Transform notificationBox, float distance)
     {
         Image boxImage = notificationBox.transform.Find("WarningBox").GetComponent<Image>();
-        RawImage iconImage = notificationBox.transform.Find("WarningImage").GetComponent<RawImage>();
+        RawImage warningImage = notificationBox.transform.Find("WarningImage").GetComponent<RawImage>();
+        RawImage confirmationImage = notificationBox.transform.Find("ConfirmationImage").GetComponent<RawImage>();
         TextMeshProUGUI ntfText = notificationBox.transform.Find("MessageText").GetComponent<TextMeshProUGUI>();
 
-        Color baseColor = boxImage.color;
+        Color boxBaseColor = boxImage.color;
+        boxBaseColor.a = 255f;
+        boxImage.color = boxBaseColor;
 
-        baseColor.a = 255f;
+        Color warImgCol = warningImage.color;
+        warImgCol.a = 255f;
+        warningImage.color = warImgCol;
 
-        boxImage.color = baseColor; iconImage.color = baseColor; ntfText.color = baseColor;
+        Color confImgColor = confirmationImage.color;
+        confImgColor.a = 255f;
+        confirmationImage.color = confImgColor;
+
+        Color textColor = ntfText.color;
+        textColor.a = 255f;
+        ntfText.color = textColor;
 
         float yAxis = notificationBox.position.y;
         float desiredY = yAxis + distance;
@@ -133,7 +154,7 @@ public class Notification : MonoBehaviour
         yield return new WaitForSeconds(0.65f);
 
 
-        if (iconImage != null && boxImage != null && ntfText != null)
+        if (warningImage != null && boxImage != null && ntfText != null && confirmationImage)
         {
             float duration = 2.3f;
             float elapsedTime = Time.time;
@@ -143,16 +164,19 @@ public class Notification : MonoBehaviour
                 float t = (Time.time - elapsedTime) / duration;
 
                 Color boxColor = boxImage.color;
-                Color iconColor = iconImage.color;
+                Color warningColor = warningImage.color;
+                Color confColor = confirmationImage.color;
                 Color ntfColor = ntfText.color;
 
-                boxColor.a = Mathf.Lerp(boxColor.a, 0, t);
-                iconColor.a = Mathf.Lerp(boxColor.a, 0, t);
-                ntfColor.a = Mathf.Lerp(boxColor.a, 0, t);
+                boxColor.a = Mathf.Lerp(1f, 0, t);
+                warningColor.a = Mathf.Lerp(1f, 0, t);
+                confColor.a = Mathf.Lerp(1f, 0, t);
+                ntfColor.a = Mathf.Lerp(1f, 0, t);
 
 
                 boxImage.color = boxColor;
-                iconImage.color = iconColor;
+                warningImage.color = warningColor;
+                confirmationImage.color = confColor;
                 ntfText.color = ntfColor;
 
                 yield return null;
@@ -164,5 +188,11 @@ public class Notification : MonoBehaviour
         {
             Debug.LogWarning("Color Component cannot be found");
         }
+    }
+
+
+    private void SetSizeBasedOnScene(GameObject notificationBox)
+    {
+        if (SceneManager.GetActiveScene().name == "MainScene") notificationBox.transform.localScale = notificationBox.transform.localScale/1.25f;
     }
 }

@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "376971707213",
+    "project_id": "gda-android-firabase",
+    "storage_bucket": "gda-android-firabase.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:376971707213:android:cb5b9df75bfc213adc2d04",
+        "android_client_info": {
+          "package_name": "com.Dax.GDSA"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB3_b4h0OmNYoU50HC7UcavzlIVzRu9wC8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
