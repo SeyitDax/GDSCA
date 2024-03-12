@@ -5,14 +5,62 @@ using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using UnityEngine.AddressableAssets;
+using System.ComponentModel;
+using UnityEngine.ResourceManagement.AsyncOperations;
 
 public class Notification : MonoBehaviour
 {
     public static Notification instance;
 
+    GameObject notificationPrefab; // = Resources.Load<GameObject>("Prefabs/NotificationBox"); // Adjust path as needed
+
+    Sprite boxSpriteWarning;
+
+    Sprite boxSpriteConfirmation;
+
+    [SerializeField] private AssetReferenceGameObject notificationPrefabRef;
+    [SerializeField] private AssetReference confirmationBoxRef;
+    [SerializeField] private AssetReference warningBoxRef;
+
+    private void Start()
+    {
+        Addressables.LoadAssetAsync<GameObject>(notificationPrefabRef).Completed += (asyncOperationHandle) =>
+        {
+            if (asyncOperationHandle.Status == AsyncOperationStatus.Succeeded)
+            {
+                notificationPrefab = asyncOperationHandle.Result;
+            }
+            else
+            {
+                Debug.LogError("Notification Load Failed!");
+            }
+        }; 
+        Addressables.LoadAssetAsync<Sprite> (confirmationBoxRef).Completed += (asyncOperationHandle) =>
+        {
+            if (asyncOperationHandle.Status == AsyncOperationStatus.Succeeded)
+            {
+                boxSpriteConfirmation = asyncOperationHandle.Result;
+            }
+            else
+            {
+                Debug.LogError("Confirmation Box Load Failed!");
+            }
+        }; 
+        Addressables.LoadAssetAsync<Sprite>(warningBoxRef).Completed += (asyncOperationHandle) =>
+        {
+            if (asyncOperationHandle.Status == AsyncOperationStatus.Succeeded)
+            {
+                boxSpriteWarning = asyncOperationHandle.Result;
+            }
+            else
+            {
+                Debug.LogError("Warning Box Load Failed!");
+            }
+        };
+    }
     public void InstantiateNotification(string message, bool warning = false)
     {
-        GameObject notificationPrefab = Resources.Load<GameObject>("Prefabs/NotificationBox"); // Adjust path as needed
         GameObject notificationObject = Instantiate(notificationPrefab, transform);
 
         // Set message text
@@ -52,7 +100,7 @@ public class Notification : MonoBehaviour
                     {
                         Debug.Log("This is a warning");
 
-                        boxImage.sprite = Resources.Load<Sprite>("AppAssets/Warning_Box");
+                        boxImage.sprite = boxSpriteWarning; //Resources.Load<Sprite>("AppAssets/Warning_Box");
 
                         warningImage.enabled = true;
                         confirmationImage.enabled = false;
@@ -61,7 +109,7 @@ public class Notification : MonoBehaviour
                     {
                         Debug.Log("Confirmation is true");
 
-                        boxImage.sprite = Resources.Load<Sprite>("AppAssets/Confirmation_Box");
+                        boxImage.sprite = boxSpriteConfirmation; //Resources.Load<Sprite>("AppAssets/Confirmation_Box");
 
                         warningImage.enabled = false;
                         confirmationImage.enabled = true;

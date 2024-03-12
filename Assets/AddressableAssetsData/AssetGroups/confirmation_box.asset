@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bbb281ee3bf0b054c82ac2347e9e782c, type: 3}
+  m_Name: confirmation_box
+  m_EditorClassIdentifier: 
+  m_GroupName: confirmation_box
+  m_Data:
+    m_SerializedData: []
+  m_GUID: b2a4341920f734d43b0cf4d62451dc23
+  m_SerializeEntries:
+  - m_GUID: d950a0918639c2e41a68dc92b1877008
+    m_Address: Assets/Resources/AppAssets/Confirmation_Box.png
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  m_ReadOnly: 0
+  m_Settings: {fileID: 11400000, guid: 76f1acf7ac442ec4ba245001006022d5, type: 2}
+  m_SchemaSet:
+    m_Schemas:
+    - {fileID: 11400000, guid: 53c53b4520f45414492deeaf67d28d74, type: 2}
+    - {fileID: 11400000, guid: b2a920e9af671174794f97ba088840e1, type: 2}

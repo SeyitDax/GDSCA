@@ -48,3 +48,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 29bf34521bcf1934b8fdcb6d330e8120, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  notificationPrefabRef:
+    m_AssetGUID: 5147dc2a8b96c8a459dad844be4288a9
+    m_SubObjectName: 
+    m_SubObjectType: 
+    m_EditorAssetChanged: 0
+  confirmationBoxRef:
+    m_AssetGUID: d950a0918639c2e41a68dc92b1877008
+    m_SubObjectName: 
+    m_SubObjectType: 
+    m_EditorAssetChanged: 0
+  warningBoxRef:
+    m_AssetGUID: e780aabf72a16cf4b960d84ece2c8a10
+    m_SubObjectName: 
+    m_SubObjectType: 
+    m_EditorAssetChanged: 0

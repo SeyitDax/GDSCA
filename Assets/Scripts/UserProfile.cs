@@ -2,6 +2,8 @@ using UnityEngine;
 using UnityEngine.UI;
 using static NativeGallery;
 using TMPro;
+using System;
+
 
 #if UNITY_EDITOR || UNITY_ANDROID
 using NativeGalleryNamespace;
@@ -18,11 +20,12 @@ public class UserProfile : MonoBehaviour
     private Texture2D currentProfileImage;
 
     [SerializeField]
-    TextMeshPro isimText;
+    TextMeshProUGUI profileID;
 
     void Start()
     {
         LoadProfileImage();
+        GenerateID();
     }
 
     // Function to load the profile image from PlayerPrefs
@@ -88,5 +91,26 @@ public class UserProfile : MonoBehaviour
                 SaveProfileImage(texture);
             }
         }, "Select an image", "image/*");
+    }
+
+    void GenerateID()
+    {
+        if(PlayerPrefs.GetString("UserID", "") == "")
+        {
+            Guid newGuid = Guid.NewGuid();
+            string guidID = newGuid.ToString();
+
+            string[] evenNums = new string[] { "0", "2", "4", "6", "8" };
+
+            guidID = guidID.Substring(0,guidID.Length-1);
+            guidID = guidID + evenNums[UnityEngine.Random.Range(0,4)];
+            
+
+            PlayerPrefs.SetString("UserID", guidID);
+        }
+        else
+        {
+            profileID.text = PlayerPrefs.GetString("UserID", "");
+        }
     }
 }

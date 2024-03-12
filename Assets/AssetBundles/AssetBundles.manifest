@@ -1,0 +1,14 @@
+ManifestFileVersion: 0
+CRC: 1718828299
+AssetBundleManifest:
+  AssetBundleInfos:
+    Info_0:
+      Name: notification
+      Dependencies:
+        Dependency_0: warning_box
+    Info_1:
+      Name: warning_box
+      Dependencies: {}
+    Info_2:
+      Name: confirmation_box
+      Dependencies: {}
