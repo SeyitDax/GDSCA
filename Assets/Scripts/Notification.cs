@@ -153,7 +153,7 @@ public class Notification : MonoBehaviour
     {
         if (notificationBox != null)
         {
-            StartCoroutine(MoveNotificationBox(notificationBox.GetComponent<Transform>(), 200f));
+            StartCoroutine(MoveNotificationBox(notificationBox.GetComponent<Transform>(), Screen.height/3f));
         }
         else
         {

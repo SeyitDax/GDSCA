@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3751543376231169996}
   - component: {fileID: 5025623479887149662}
+  - component: {fileID: -5804207437672840386}
   m_Layer: 5
   m_Name: Notification SpawnPoint
   m_TagString: Untagged
@@ -63,3 +64,11 @@ MonoBehaviour:
     m_SubObjectName: 
     m_SubObjectType: 
     m_EditorAssetChanged: 0
+--- !u!222 &-5804207437672840386
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3018233179887963208}
+  m_CullTransparentMesh: 1

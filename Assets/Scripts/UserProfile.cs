@@ -1,8 +1,9 @@
 using UnityEngine;
 using UnityEngine.UI;
-using static NativeGallery;
 using TMPro;
 using System;
+using System.IO;
+using System.Text;
 
 
 #if UNITY_EDITOR || UNITY_ANDROID
@@ -11,13 +12,10 @@ using NativeGalleryNamespace;
 
 public class UserProfile : MonoBehaviour
 {
-#if UNITY_EDITOR || UNITY_ANDROID
-    [SerializeField]
-#endif
-
     public RawImage profileImage;
     private string imagePathKey = "UserProfileImage";
     private Texture2D currentProfileImage;
+    private string imageDataFilePath; // Path to the file where image data will be saved
 
     [SerializeField]
     TextMeshProUGUI profileID;
@@ -26,57 +24,101 @@ public class UserProfile : MonoBehaviour
     {
         LoadProfileImage();
         GenerateID();
+
+        Invoke("GenerateID", 0.2f);
+
+        // Initialize the file path for saving image data
+        imageDataFilePath = Application.persistentDataPath + "/profileImageData.json";
     }
 
-    // Function to load the profile image from PlayerPrefs
     void LoadProfileImage()
     {
-        string savedImagePath = PlayerPrefs.GetString(imagePathKey, "");
-        if (!string.IsNullOrEmpty(savedImagePath))
+        // Attempt to read the JSON file
+        if (File.Exists(imageDataFilePath))
         {
-            byte[] imageData = System.Convert.FromBase64String(savedImagePath);
-            Texture2D texture = new Texture2D(1, 1);
-            texture.LoadImage(imageData);
-            currentProfileImage = texture;
-            profileImage.texture = texture;
+            string jsonData = File.ReadAllText(imageDataFilePath);
+
+            // Deserialize the JSON data into a ProfileImageData object
+            ProfileImageData profileImageData = JsonUtility.FromJson<ProfileImageData>(jsonData);
+
+            if (profileImageData != null && !string.IsNullOrEmpty(profileImageData.base64ImageData))
+            {
+                // Convert the base64 string back to byte array
+                byte[] imageData = Convert.FromBase64String(profileImageData.base64ImageData);
+
+                // Create texture from byte array
+                Texture2D texture = new Texture2D(1, 1);
+                texture.LoadImage(imageData);
+                currentProfileImage = texture;
+                profileImage.texture = texture;
+            }
         }
     }
 
-    // Function to save the profile image to PlayerPrefs
     void SaveProfileImage(Texture2D texture)
     {
         Debug.Log("Trying to Save the image");
 
-        // Create a copy of the texture
-        Texture2D copyTexture = new Texture2D(texture.width, texture.height, texture.format, texture.mipmapCount > 1);
-        Graphics.CopyTexture(texture, copyTexture);
+        texture = EnsureTextureIsReadable(texture);
 
-        // Mark the copy texture as readable
-        copyTexture.Apply();
+        // Encode the texture to JPG
+        byte[] imageData = texture.EncodeToJPG();
+        string base64ImageData = Convert.ToBase64String(imageData);
 
-        // Encode the copy texture to JPG
-        byte[] imageData = copyTexture.EncodeToJPG();
-        string savedImagePath = System.Convert.ToBase64String(imageData);
-        PlayerPrefs.SetString(imagePathKey, savedImagePath);
-        PlayerPrefs.Save();
+        // Create a JSON object to hold the image data
+        ProfileImageData profileImageData = new ProfileImageData();
+        profileImageData.base64ImageData = base64ImageData;
 
-        // Clean up resources
-        Destroy(copyTexture);
+        // Convert the object to JSON
+        string jsonData = JsonUtility.ToJson(profileImageData);
 
-        Debug.Log("Saved Ýmage succesfully");
+        // Cheking if directory really exists
+        string directoryPath = Path.GetDirectoryName(imageDataFilePath);
+        if (!Directory.Exists(directoryPath))
+        {
+            Directory.CreateDirectory(directoryPath);
+        }
+
+        // Write the JSON data to a file
+        try
+        {
+            File.WriteAllText(imageDataFilePath, jsonData);
+            Debug.Log("Saved Image successfully");
+        }
+        catch (Exception ex)
+{
+            Debug.LogError("Failed to save image data: " + ex.Message);
+        }
     }
 
-
-    // Function to allow the user to change their profile picture
-    public void ChangeProfilePicture()
+    Texture2D EnsureTextureIsReadable(Texture2D texture)
     {
-        // Calling NativeGallery.GetImageFromGallery method with a callback function
+        RenderTexture tpRenderTexture = RenderTexture.GetTemporary(
+            texture.width,
+            texture.height,
+            0,
+            RenderTextureFormat.Default,
+            RenderTextureReadWrite.Linear
+            );
+
+        Graphics.Blit( texture, tpRenderTexture );
+
+        Texture2D readableTexture = new Texture2D(texture.width, texture.height);
+        RenderTexture.active = tpRenderTexture;
+        readableTexture.ReadPixels(new Rect(0,0, texture.width,texture.height), 0, 0);
+        readableTexture.Apply();
+
+        RenderTexture.ReleaseTemporary(tpRenderTexture);
+        return readableTexture;
+    }
+
+    void ChangeProfilePicture()
+    {
         NativeGallery.GetImageFromGallery((path) =>
         {
             Debug.Log("Image path: " + path);
             if (path != null)
             {
-                // Create Texture from selected image
                 Texture2D texture = NativeGallery.LoadImageAtPath(path, 512);
                 if (texture == null)
                 {
@@ -84,27 +126,24 @@ public class UserProfile : MonoBehaviour
                     return;
                 }
 
-                // Assign texture to the profile image
                 profileImage.texture = texture;
-
-                // Save the selected image to PlayerPrefs
                 SaveProfileImage(texture);
+                currentProfileImage = texture;
             }
         }, "Select an image", "image/*");
     }
 
     void GenerateID()
     {
-        if(PlayerPrefs.GetString("UserID", "") == "")
+        if (PlayerPrefs.GetString("UserID", "") == "")
         {
             Guid newGuid = Guid.NewGuid();
             string guidID = newGuid.ToString();
 
             string[] evenNums = new string[] { "0", "2", "4", "6", "8" };
 
-            guidID = guidID.Substring(0,guidID.Length-1);
-            guidID = guidID + evenNums[UnityEngine.Random.Range(0,4)];
-            
+            guidID = guidID.Substring(0, guidID.Length - 1);
+            guidID = guidID + evenNums[UnityEngine.Random.Range(0, 4)];
 
             PlayerPrefs.SetString("UserID", guidID);
         }
@@ -113,4 +152,20 @@ public class UserProfile : MonoBehaviour
             profileID.text = PlayerPrefs.GetString("UserID", "");
         }
     }
+
+    private void OnApplicationPause(bool pause)
+    {
+        SaveProfileImage(currentProfileImage);
+    }
+
+    private void OnApplicationQuit()
+    {
+        SaveProfileImage(currentProfileImage);
+    }
+}
+
+[Serializable]
+public class ProfileImageData
+{
+    public string base64ImageData;
 }
