@@ -117,7 +117,7 @@ public class AppData : MonoBehaviour
             if (instance.phoneBook.Any(person => person.phoneNumber == correctedPhoneNum))
             {
                 if(!firstAdd)Notification.instance.InstantiateNotification("Bu kiþi zaten kayýtlý", true);
-                Debug.Log("Person with the same phone number already exists in the phone book.");
+              //  Debug.Log("Person with the same phone number already exists in the phone book.");
             }
             else
             {
@@ -139,7 +139,7 @@ public class AppData : MonoBehaviour
             }
             else
             {
-                Debug.Log("Phone number already exists in plainNumbers.");
+               // Debug.Log("Phone number already exists in plainNumbers.");
             }
         }
     }

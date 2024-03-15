@@ -4,6 +4,8 @@ using TMPro;
 using System;
 using System.IO;
 using System.Text;
+using UnityEngine.Android;
+
 
 
 #if UNITY_EDITOR || UNITY_ANDROID
@@ -22,13 +24,13 @@ public class UserProfile : MonoBehaviour
 
     void Start()
     {
+        // Initialize the file path for saving image data
+        imageDataFilePath = Application.persistentDataPath + "/profileImageData.json";
+
         LoadProfileImage();
         GenerateID();
 
-        Invoke("GenerateID", 0.2f);
-
-        // Initialize the file path for saving image data
-        imageDataFilePath = Application.persistentDataPath + "/profileImageData.json";
+        Invoke("GenerateID", 0.2f);    
     }
 
     void LoadProfileImage()
@@ -52,6 +54,14 @@ public class UserProfile : MonoBehaviour
                 currentProfileImage = texture;
                 profileImage.texture = texture;
             }
+            else
+            {
+                Debug.LogError("File itself seems to be null!");
+            }
+        }
+        else
+        {
+            Debug.LogError("File does not exist or couldn't be found!");
         }
     }
 
@@ -82,11 +92,16 @@ public class UserProfile : MonoBehaviour
         // Write the JSON data to a file
         try
         {
+            if(!Permission.HasUserAuthorizedPermission(Permission.ExternalStorageWrite))
+            {
+                Permission.RequestUserPermission(Permission.ExternalStorageWrite);
+            }
+
             File.WriteAllText(imageDataFilePath, jsonData);
             Debug.Log("Saved Image successfully");
         }
         catch (Exception ex)
-{
+        {
             Debug.LogError("Failed to save image data: " + ex.Message);
         }
     }
@@ -151,16 +166,6 @@ public class UserProfile : MonoBehaviour
         {
             profileID.text = PlayerPrefs.GetString("UserID", "");
         }
-    }
-
-    private void OnApplicationPause(bool pause)
-    {
-        SaveProfileImage(currentProfileImage);
-    }
-
-    private void OnApplicationQuit()
-    {
-        SaveProfileImage(currentProfileImage);
     }
 }
 
